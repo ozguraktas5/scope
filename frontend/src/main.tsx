@@ -1,12 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
-import "./index.css";
+import "./App.css";
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import Projects from "./pages/Projects.tsx";
 import Tasks from "./pages/Tasks.tsx";
 import Ozerpan from "./pages/Ozerpan.js";
 import Login from "./pages/Login.tsx";
+import ProtectedRoute from "./ProtectedRoute.tsx";
 
 const router = createBrowserRouter(
   [
@@ -19,7 +20,8 @@ const router = createBrowserRouter(
           element: <Login />,
         },
         {
-          element: <Outlet />,
+          element: <ProtectedRoute />,
+          errorElement: <p>There was an error.</p>,
           children: [
             {
               path: "projects",

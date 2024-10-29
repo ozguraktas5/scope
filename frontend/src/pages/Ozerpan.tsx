@@ -18,7 +18,9 @@ import CheckIcon from "@mui/icons-material/Check";
 import ClearIcon from "@mui/icons-material/Clear";
 import DisabledByDefaultIcon from "@mui/icons-material/DisabledByDefault";
 import React from "react";
-import { useFrappeGetDocList, Filter } from "frappe-react-sdk";
+import { useFrappeGetDocList } from "frappe-react-sdk";
+import { Checkbox } from "@/components/ui/checkbox";
+import { FrappeApp } from "frappe-js-sdk";
 
 const urunMusteriBilgileri = [
   { label: "Ürün / Müşteri Bilgileri", value: null },
@@ -36,11 +38,19 @@ const Ozerpan = () => {
     filters: [["name", "=", "MAT-QA-2024-00040"]],
   });
 
+  const frappe = new FrappeApp("http://127.0.0.1:8001/app/home");
+
+  const auth = frappe.auth();
+  console.log(auth);
+
+  auth
+    .getLoggedInUser()
+    .then((user) => console.log(`User ${user} is logged in.`))
+    .catch((error) => console.error(error));
+
   const allAccepted = data1
     ?.flatMap((item) => item.readings || [])
     .every((reading) => reading.status === "Accepted");
-
-  console.log(allAccepted);
 
   const { data: data2 } = useFrappeGetDocList("BOM", {
     fields: [
@@ -181,13 +191,28 @@ const Ozerpan = () => {
                 <div className="flex gap-5 p-2">
                   <div>
                     {data1?.map((item, index) => (
-                      <div key={index} className="text-sm">
-                        {item.specification}{" "}
+                      <div
+                        key={index}
+                        className="text-sm flex items-center gap-3"
+                      >
+                        {item.specification}
+                        <Checkbox
+                          checked={item.status === "Accepted"}
+                          onChange={(e) => {
+                            const isChecked = (e.target as HTMLInputElement)
+                              .checked;
+                            console.log("Checkbox changed:", isChecked); // Kontrol için eklendi
+                            if (!isChecked) {
+                              updateStatus(item.specification);
+                            }
+                          }}
+                        />
+
                         {item.status === "Accepted" ? (
                           <CheckBoxIcon className="text-green-700" />
-                        ) : item.readings.status === "Rejected" ? (
+                        ) : (
                           <DisabledByDefaultIcon className="text-red-700" />
-                        ) : null}
+                        )}
                       </div>
                     ))}
                   </div>
