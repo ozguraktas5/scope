@@ -6,8 +6,14 @@ function App() {
   return (
     <div className="App">
       <FrappeProvider
-        socketPort={import.meta.env.VITE_SOCKET_PORT}
         siteName={import.meta.env.VITE_SITE_NAME}
+        socketPort={import.meta.env.VITE_SOCKET_PORT}
+        url="http://localhost:8001"
+        tokenParams={{
+          type: "token",
+          useToken: true,
+          //token:()=>'api_key:api_secret'
+        }}
       >
         <Outlet />
       </FrappeProvider>

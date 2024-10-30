@@ -16,7 +16,7 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: "../scope/public/frontend",
+    outDir: "../ozerpan/public/frontend",
     emptyOutDir: true,
     target: "es2015",
   },

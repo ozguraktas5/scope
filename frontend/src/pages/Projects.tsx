@@ -24,6 +24,7 @@ import { useMemo, useState } from "react";
 import Pagination from "@/components/common/Pagination/Pagination";
 import CreateProjectButton from "@/components/features/Projects/CreateProjectButton";
 import { ErrorBanner } from "@/components/common/ErrorBanner/ErrorBanner";
+import { Button } from "@/components/ui/button";
 
 const Projects = () => {
   const [status, setStatus] = useState("");
