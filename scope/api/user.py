@@ -1,4 +1,5 @@
 import frappe
+from frappe.model.document import Document
 
 @frappe.whitelist()
 def get_user_avatar(user):
@@ -6,3 +7,4 @@ def get_user_avatar(user):
         "image": frappe.get_cached_value("User", user, "user_image"),
         "full_name": frappe.get_cached_value("User", user, "full_name")
     }
+
