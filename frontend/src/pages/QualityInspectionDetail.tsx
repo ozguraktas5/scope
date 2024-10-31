@@ -1,69 +1,92 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useFrappeGetDoc, useFrappeUpdateDoc } from "frappe-react-sdk";
+import { useFrappeGetDoc, useSWRConfig } from "frappe-react-sdk";
+import { Button } from "@/components/ui/button";
 
 const QualityInspectionDetail = () => {
   const { id } = useParams(); // URL'den kalite kontrol ID'sini al
-  const {
-    data: qualityInspection,
-    error,
-    mutate,
-  } = useFrappeGetDoc("Quality Inspection", id);
+  const { mutate } = useSWRConfig();
+  const { data: qualityInspection, error } = useFrappeGetDoc(
+    "Quality Inspection",
+    id
+  );
+  const [updatedReadings, setUpdatedReadings] = useState([]);
+  const [isSubmitted, setIsSubmitted] = useState(false); // Submit durumunu takip etmek için state
 
+  // Quality Inspection verileri yüklendiğinde readings'i ayarla
   useEffect(() => {
-    console.log("Açılan kalite kontrol ID'si:", id);
     if (qualityInspection) {
-      console.log("Quality Inspection Detayları:", qualityInspection);
+      setUpdatedReadings(qualityInspection.readings);
     }
-  }, [id, qualityInspection]);
+  }, [qualityInspection]);
 
-  const saveQualityInspection = async (
-    qualityInspectionId,
-    updatedReadings
-  ) => {
+  // Quality Inspection güncelleme fonksiyonu
+  const updateQualityInspectionStatus = async (readingIndex, newStatus) => {
     try {
+      const updated = [...updatedReadings];
+      updated[readingIndex].status = newStatus; // Status'u güncelle
+      updated[readingIndex].reading_value = "Doğru Değer"; // Reading Value alanını güncelle
+
+      // Eğer tüm readings öğeleri "Accepted" ise, Quality Inspection durumunu "Accepted" yap
+      const allAccepted = updated.every(
+        (reading) => reading.status === "Accepted"
+      );
       const payload = {
-        doc: JSON.stringify({
-          doctype: "Quality Inspection",
-          name: qualityInspectionId,
-          inspection_type:
-            qualityInspection?.inspection_type || "Random Inspection", // Zorunlu alan
-          reference_type:
-            qualityInspection?.reference_type || "Material Request", // Zorunlu alan
-          reference_name: qualityInspection?.reference_name || "REQ-0001", // Zorunlu alan
-          item_code: qualityInspection?.item_code || "ITEM-001", // Zorunlu alan
-          sample_size: qualityInspection?.sample_size || 5, // Zorunlu alan
-          readings: updatedReadings,
-          inspected_by: "ozguraktas.55555@gmail.com", // ERPNext'te mevcut bir kullanıcı
-        }),
-        action: "Save", // Gerekli 'action' parametresi
+        readings: updated,
+        status: allAccepted ? "Accepted" : "Rejected", // Tüm öğeler "Accepted" ise "Accepted", aksi halde "Rejected"
       };
 
-      const response = await fetch(
-        "/api/method/frappe.desk.form.save.savedocs",
-        {
-          method: "PUT",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      setUpdatedReadings(updated);
+
+      // API'ye güncellenmiş verileri gönder
+      const response = await fetch(`/api/resource/Quality Inspection/${id}`, {
+        method: "PUT",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
       if (!response.ok) {
-        throw new Error(
-          "Failed to save Quality Inspection: " + response.statusText
-        );
+        throw new Error("Güncelleme başarısız: " + response.statusText);
       }
 
       const data = await response.json();
-      console.log("Quality Inspection updated successfully:", data);
+      console.log("Quality Inspection başarıyla güncellendi:", data);
+      mutate(`api/resource/Quality Inspection/${id}`); // Doğru anahtarla mutate çağır
     } catch (error) {
-      console.error("Error updating Quality Inspection:", error);
+      console.error("Güncelleme hatası:", error);
     }
   };
 
+  // Quality Inspection submit etme fonksiyonu
+  const submitQualityInspection = async () => {
+    try {
+      // API'ye submit isteği gönder
+      const response = await fetch(`/api/resource/Quality Inspection/${id}`, {
+        method: "PUT",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ docstatus: 1 }), // docstatus: 1 olarak ayarla
+      });
+
+      if (!response.ok) {
+        throw new Error("Submit işlemi başarısız: " + response.statusText);
+      }
+
+      const data = await response.json();
+      console.log("Quality Inspection başarıyla submit edildi:", data);
+      setIsSubmitted(true); // Submit işlemi tamamlandığında durumu güncelle
+      mutate(`api/resource/Quality Inspection/${id}`); // Doğru anahtarla mutate çağır
+    } catch (error) {
+      console.error("Submit hatası:", error);
+    }
+  };
+
+  // Hata veya yükleniyor durumu
   if (error) return <div>Veriler yüklenirken bir hata oluştu.</div>;
   if (!qualityInspection) return <div>Yükleniyor...</div>;
 
@@ -88,21 +111,29 @@ const QualityInspectionDetail = () => {
       <p>
         <strong>Sample Size:</strong> {qualityInspection.sample_size}
       </p>
-
       <h2>Readings</h2>
       <ul>
-        {qualityInspection.readings.map((reading: any, index: any) => (
+        {updatedReadings.map((reading, index) => (
           <li key={index}>
-            <strong>Specification:</strong> {reading.specification}
+            <strong>Parameter:</strong> {reading.specification}
             <input
               type="checkbox"
               checked={reading.status === "Accepted"}
-              onChange={(e) => saveQualityInspection(index, e.target.checked)}
+              onChange={(e) =>
+                updateQualityInspectionStatus(
+                  index,
+                  e.target.checked ? "Accepted" : "Rejected"
+                )
+              }
             />
             <strong>Status:</strong> {reading.status}
           </li>
         ))}
       </ul>
+      <Button onClick={submitQualityInspection} disabled={isSubmitted}>
+        {isSubmitted ? "Submitted" : "Submit"}
+      </Button>{" "}
+      {/* Submit butonu */}
     </div>
   );
 };
