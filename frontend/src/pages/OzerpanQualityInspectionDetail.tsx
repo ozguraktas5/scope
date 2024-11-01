@@ -34,13 +34,19 @@ const urunMusteriBilgileri = [
   { label: "Renk:", value: "aaa" },
 ];
 
-const QualityInspectionDetail = () => {
+const OzerpanQualityInspectionDetail = () => {
   const { id } = useParams(); // URL'den kalite kontrol ID'sini al
   const { mutate } = useSWRConfig();
+  const [stationName, setStationName] = useState("Kalite İstasyonu");
   const { data: qualityInspection, error } = useFrappeGetDoc(
     "Quality Inspection",
     id
   );
+
+  const { data: salesOrder } = useFrappeGetDoc("Sales Order");
+
+  console.log(salesOrder);
+
   const [updatedReadings, setUpdatedReadings] = useState([]);
   const [isSubmitted, setIsSubmitted] = useState(false); // Submit durumunu takip etmek için state
 
@@ -70,6 +76,11 @@ const QualityInspectionDetail = () => {
   useEffect(() => {
     if (qualityInspection) {
       setUpdatedReadings(qualityInspection.readings);
+
+      // Eğer docstatus 1 ise, isSubmitted true olarak ayarlanır
+      if (qualityInspection.docstatus === 1) {
+        setIsSubmitted(true);
+      }
     }
   }, [qualityInspection]);
 
@@ -147,24 +158,16 @@ const QualityInspectionDetail = () => {
     <div className="flex flex-col min-h-screen h-full m-4">
       <div className="flex gap-4 items-center mb-3">
         <div>
-          <Select>
-            <SelectTrigger className="w-[230px] rounded-none bg-gray-100 h-6">
-              <SelectValue placeholder="K12345" />
-            </SelectTrigger>
-            <SelectContent className="rounded-none bg-gray-100">
-              <SelectGroup>
-                <SelectLabel>A</SelectLabel>
-                <SelectItem value="apple">B</SelectItem>
-                <SelectItem value="banana">C</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+          <Button className="w-[270px] rounded-none bg-gray-100 text-black h-6 ps-6">
+            {qualityInspection.inspected_by}
+            <span className="mx-1"></span> {/* Araya boşluk eklemek için */}
+            {qualityInspection.reference_name}
+          </Button>
         </div>
         <div>
-          <Input
-            className="w-[230px] rounded-none bg-gray-100 h-6"
-            type="text"
-          />
+          <Button className="w-[240px] rounded-none bg-gray-100 text-black h-6 ps-6">
+            Kullanıcı Adı / {stationName}
+          </Button>
         </div>
         <div className="flex gap-1">
           <div className="flex items-center">
@@ -398,4 +401,4 @@ const QualityInspectionDetail = () => {
   );
 };
 
-export default QualityInspectionDetail;
+export default OzerpanQualityInspectionDetail;

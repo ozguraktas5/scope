@@ -8,7 +8,8 @@ import Tasks from "./pages/Tasks.tsx";
 import Ozerpan from "./pages/Ozerpan.js";
 import Login from "./pages/Login.tsx";
 import ProtectedRoute from "./ProtectedRoute.tsx";
-import QualityInspectionDetail from "./pages/QualityInspectionDetail.tsx";
+import OzerpanQualityInspectionDetail from "./pages/OzerpanQualityInspectionDetail.tsx";
+import OzerpanSalesOrderDetail from "./pages/OzerpanSalesOrderDetail.tsx";
 
 const router = createBrowserRouter(
   [
@@ -40,7 +41,11 @@ const router = createBrowserRouter(
         },
         {
           path: "ozerpan/quality-inspection/:id",
-          element: <QualityInspectionDetail />,
+          element: <OzerpanQualityInspectionDetail />,
+        },
+        {
+          path: "ozerpan/sales-order/:id",
+          element: <OzerpanSalesOrderDetail />,
         },
         {
           path: "*",
