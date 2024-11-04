@@ -9,21 +9,23 @@ import {
 } from "@/components/ui/select";
 import useDebounce from "@/hooks/useDebounce";
 import { Task } from "@/types/Projects/Task";
-import { useFrappeGetDocList } from "frappe-react-sdk";
-import { useEffect, useState } from "react";
+import { Filter, useFrappeGetDocList } from "frappe-react-sdk";
+import { useState } from "react";
 
 const Tasks = () => {
   const [subject, setSubject] = useDebounce("");
 
   const [status, setStatus] = useState("");
 
-  useEffect(() => {
-    console.log("Ran Effect", status);
+  const filters: Filter[] = [];
 
-    return () => {
-      console.log("Cleanup", status);
-    };
-  }, [status]);
+  if (subject) {
+    filters.push(["subject", "like", `%${subject}`]);
+  }
+
+  if (status) {
+    filters.push(["status", "=", status]);
+  }
 
   const { data } = useFrappeGetDocList<Task>(
     "Task",
@@ -38,10 +40,7 @@ const Tasks = () => {
         "priority",
         "_assign",
       ],
-      filters: [
-        ["subject", "like", `%${subject}`],
-        ["status", "=", status],
-      ],
+      filters,
     },
     ["task_list", subject, status]
   );
