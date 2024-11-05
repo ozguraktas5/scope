@@ -10,6 +10,7 @@ import Login from "./pages/Login.tsx";
 import ProtectedRoute from "./ProtectedRoute.tsx";
 import OzerpanQualityInspectionDetail from "./pages/OzerpanQualityInspectionDetail.tsx";
 import OzerpanSalesOrderDetail from "./pages/OzerpanSalesOrderDetail.tsx";
+import List from "./pages/doctype/List.tsx";
 
 const router = createBrowserRouter(
   [
@@ -33,6 +34,14 @@ const router = createBrowserRouter(
               path: "tasks",
               element: <Tasks />,
             },
+            {
+              path: ":doctype",
+              element: <List />,
+            },
+            {
+              path: "*",
+              element: <p>Not Found</p>,
+            },
           ],
         },
         {
@@ -46,10 +55,6 @@ const router = createBrowserRouter(
         {
           path: "ozerpan/sales-order/:id",
           element: <OzerpanSalesOrderDetail />,
-        },
-        {
-          path: "*",
-          element: <p>Not Found</p>,
         },
       ],
     },

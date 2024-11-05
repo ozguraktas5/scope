@@ -37,6 +37,8 @@ const Ozerpan = () => {
     filters: [["name", "=", "MAT-QA-2024-00040"]],
   });
 
+  console.log(data1);
+
   const allAccepted = data1
     ?.flatMap((item) => item.readings || [])
     .every((reading) => reading.status === "Accepted");

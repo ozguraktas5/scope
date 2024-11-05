@@ -4,8 +4,6 @@ import { Link, Outlet } from "react-router-dom";
 const ProtectedRoute = () => {
   const { currentUser } = useFrappeAuth();
 
-  console.log(currentUser);
-
   if (currentUser) {
     return <Outlet />;
   } else {
