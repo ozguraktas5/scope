@@ -1,9 +1,11 @@
 import useDoctypeMeta from "@/hooks/useDoctypeMeta";
 import { useFrappeGetDocList } from "frappe-react-sdk";
-import React, { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import { useParams } from "react-router-dom";
 import "@glideapps/glide-data-grid/dist/index.css";
-import { DataEditor, GridCell, GridCellKind, Item } from "@glideapps/glide-data-grid"
+import { AgGridReact } from "ag-grid-react"; // React Data Grid Component
+import "ag-grid-community/styles/ag-grid.css"; // Mandatory CSS required by the Data Grid
+import "ag-grid-community/styles/ag-theme-quartz.css"; // Optional Theme applied to the Data Grid
 
 const LAYOUT_FIELD_TYPES = [
   "Tab Break",
@@ -31,39 +33,33 @@ const List = () => {
         if (LAYOUT_FIELD_TYPES.includes(field.fieldtype)) continue;
 
         fields.push({
-          id: field.fieldname,
-          title: field.label,
+          field: field.fieldname,
+          headerName: field.label,
+          editable: true,
         });
       }
-      return fields
+      return fields;
     } else {
       return [];
     }
   }, [doctypeMeta]);
 
   const { data } = useFrappeGetDocList(doctype, {
-    fields: columns.map((col) => col.id)i
+    fields: columns.map((col) => col.field),
   });
 
-  const getCellContent = useCallback((cell: Item): GridCell => {
-    const [col, row] = cell;
-    const dataRow = data?.[row];
-    // dumb but simple way to do this
-   
-    const d = dataRow[columns[col]]
-    return {
-        kind: GridCellKind.Text,
-        allowOverlay: false,
-        displayData: d,
-        data: d,
-    };
-}, [data, columns]);
-
-return <DataEditor 
-getCellContent={getCellContent} 
-columns={columns} 
-rows={data?.length ?? 0} 
-/>;
+  return (
+    // wrapping container with theme & size
+    <div>
+      <h1>{doctype}</h1>
+      <div
+        className="ag-theme-quartz" // applying the Data Grid theme
+        style={{ height: "100vh" }} // the Data Grid will fill the size of the parent container
+      >
+        <AgGridReact rowData={data} columnDefs={columns} />
+      </div>
+    </div>
+  );
 };
 
 export default List;
