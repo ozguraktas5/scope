@@ -23,9 +23,11 @@ const TaskRow = ({ task }: Props) => {
         <div className="flex items-center justify-center w-4 h-4">
           <PrioritySelector priority={task.priority} taskID={task.name} />
         </div>
-        {/* <span className='text-xs font-light text-muted-foreground'>{issue.name}</span> */}
+        {/* <span className="text-xs font-light text-muted-foreground">
+          {task.name}
+        </span> */}
         <div className="flex items-center justify-center w-4 h-4 mx-1">
-          {/* <StatusSelector status={issue.status} issueID={issue.name} /> */}
+          {/* <StatusSelector status={task.status} issueID={task.name} /> */}
         </div>
         <p className="text-sm font-medium">{task.subject}</p>
       </div>

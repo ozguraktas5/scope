@@ -27,9 +27,7 @@ const PrioritySelector = ({ priority, taskID }: Props) => {
       (key) => Array.isArray(key) && key[0] === "task_list",
       // Updater function
       async (existingTasks?: Task[]) => {
-        return updateDoc("Task", taskID, {
-          priority: p,
-        }).then((doc) => {
+        return promise.then((doc) => {
           return existingTasks?.map((task) => {
             if (task.name === doc.name) {
               return {

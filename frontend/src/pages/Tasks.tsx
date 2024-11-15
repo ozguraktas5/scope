@@ -66,6 +66,8 @@ const Tasks = () => {
             <SelectItem value="Open">Open</SelectItem>
             <SelectItem value="Completed">Completed</SelectItem>
             <SelectItem value="Cancelled">Cancelled</SelectItem>
+            <SelectItem value="Working">Working</SelectItem>
+            <SelectItem value="Pending Review">Pending Review</SelectItem>
           </SelectContent>
         </Select>
       </div>
